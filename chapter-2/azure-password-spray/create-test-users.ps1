@@ -8,5 +8,5 @@ foreach ($user in $users)
     $displayname=$(echo $user | sed 's/@.*//')
     New-AzADUser -DisplayName $displayname -UserPrincipalName $user -Password $securepassword -MailNickname $displayname
 }
-echo $users
-echo $password
+echo "Created Users:" $users
+echo "Password:" $password

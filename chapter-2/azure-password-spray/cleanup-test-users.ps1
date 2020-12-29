@@ -5,3 +5,4 @@ foreach ($user in $users)
 {
     Remove-AzADUser -UserPrincipalName $user -Confirm:$False -Force
 }
+echo "Test users successfully cleaned up"
