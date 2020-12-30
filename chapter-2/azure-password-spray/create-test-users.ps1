@@ -1,12 +1,14 @@
-﻿$upnsuffix=$(az ad signed-in-user show --query userPrincipalName --output tsv | sed 's/.*@//')
-$password = Read-Host "Please enter a password:"
-$securepassword = ConvertTo-SecureString -String $password -AsPlainText -Force
-$users = "sandra@$upnsuffix","mike@$upnsuffix","juan@$upnsuffix","kwasi@$upnsuffix","adaeze@$upnsuffix"
+﻿Connect-AzureAD
+$passwordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordProfile
+$passwordProfile.Password = Read-Host "Please enter a password"
+$domainName = ((Get-AzureAdTenantDetail).VerifiedDomains)[0].Name
+$users = "sandra@$domainName","mike@$domainName","juan@$domainName","kwasi@$domainName","adaeze@$domainName"
 
 foreach ($user in $users) 
 { 
-    $displayname=$(echo $user | sed 's/@.*//')
-    New-AzADUser -DisplayName $displayname -UserPrincipalName $user -Password $securepassword -MailNickname $displayname
+$displayname=$(echo $user | sed 's/@.*//')
+New-AzureADUser -DisplayName $displayname -UserPrincipalName $user -PasswordProfile $passwordProfile -MailNickname $displayname -AccountEnabled $true
+
 }
-echo "Created Users:" $users
-echo "Password:" $password
+echo "Successfully created the following users:" $users
+echo "User Password:" $passwordProfile.Password
