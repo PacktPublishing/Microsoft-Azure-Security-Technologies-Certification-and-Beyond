@@ -1,5 +1,5 @@
-﻿$domainName = ((Get-AzureAdTenantDetail).VerifiedDomains)[0].Name
-$users = "sandra@$domainName","mike@$domainName","juan@$domainName","kwasi@$domainName","adaeze@$domainName"
+﻿$upnsuffix=$(az ad signed-in-user show --query userPrincipalName --output tsv | sed 's/.*@//')
+$users = "sandra@$upnsuffix","mike@$upnsuffix","juan@$upnsuffix","kwasi@$upnsuffix","adaeze@$upnsuffix"
 
 foreach ($user in $users) 
 {
