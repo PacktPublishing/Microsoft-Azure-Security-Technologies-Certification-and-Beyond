@@ -36,7 +36,7 @@ az vm open-port --port 22 --resource-group $group --name $linuxvmname --priority
 $linuxvmpubip=$(az vm show -d -g $group -n $linuxvmname --query publicIps -o tsv)
 az vm extension set -g $group --vm-name $linuxvmname --name customScript --publisher Microsoft.Azure.Extensions --settings ./linux_custom_extension.json
 
-
+## Script Output
 echo "Azure Admin User:" $user
 echo "Azure Admin User Password:" $password
 echo " "
