@@ -37,11 +37,11 @@ $linuxvmpubip=$(az vm show -d -g $group -n $linuxvmname --query publicIps -o tsv
 az vm extension set -g $group --vm-name $linuxvmname --name customScript --publisher Microsoft.Azure.Extensions --settings ./linux_custom_extension.json
 
 ## Script Output
-echo "Azure Admin User:" $user
-echo "Azure Admin User Password:" $password
-echo " "
-echo "Linux VM Public IP:" $linuxvmpubip
-echo "Linux VM Username:" $linuxuser
-echo "Linux VM User Password:" $password
-echo " "
-echo "Exfiltration Storage Location: https://$storagename.blob.core.windows.net/$containername/$blobname$sastoken"
+Write-Host -ForegroundColor Green "Azure Admin User:" $user
+Write-Host -ForegroundColor Green "Azure Admin User Password:" $password
+Write-Host -ForegroundColor Green " "
+Write-Host -ForegroundColor Green "Linux VM Public IP:" $linuxvmpubip
+Write-Host -ForegroundColor Green "Linux VM Username:" $linuxuser
+Write-Host -ForegroundColor Green "Linux VM User Password:" $password
+Write-Host -ForegroundColor Green " "
+Write-Host -ForegroundColor Green "Exfiltration Storage Location: https://$storagename.blob.core.windows.net/$containername/$blobname$sastoken"
