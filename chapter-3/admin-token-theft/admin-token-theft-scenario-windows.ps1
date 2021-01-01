@@ -38,7 +38,9 @@ az storage container create --account-name $storagename --name $containername
 $ctx = New-AzStorageContext -StorageAccountName $storagename -UseConnectedAccount
 $StartTime = Get-Date
 $EndTime = $startTime.AddDays(6)
-$sastoken = New-AzStorageContainerSASToken -Name $containername -Permission rwdl -StartTime $StartTime -ExpiryTime $EndTime -context $ctx
+# $sastoken = New-AzStorageContainerSASToken -Name $containername -Permission rwdlac -StartTime $StartTime -ExpiryTime $EndTime -context $ctx
+$sastoken = New-AzStorageAccountSASToken -Service Blob -ResourceType Service,Container,Object -Permission "racwdlup" -Context $ctx -StartTime $StartTime -ExpiryTime $EndTime
+
 
 ## Download Windows Custom Script Extension
 Invoke-WebRequest -Uri https://raw.githubusercontent.com/PacktPublishing/Implementing-Microsoft-Azure-Security-Technologies/main/chapter-3/custom-script-extensions/windows_custom_extension.json -OutFile windows_custom_extension.json
