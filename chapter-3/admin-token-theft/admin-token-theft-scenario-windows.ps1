@@ -52,8 +52,6 @@ $winvmpubip=$(az vm show -d -g $group -n $winvmname --query publicIps -o tsv)
 
 Set-AzVMCustomScriptExtension -ResourceGroupName $group -VMName $winvmname -Location $location -FileUri "https://raw.githubusercontent.com/PacktPublishing/Implementing-Microsoft-Azure-Security-Technologies/main/chapter-3/custom-script-extensions/azure_powershell_install.ps1" -Run 'azure_powershell_install.ps1' -Name AzurePSExtension
 
-az vm extension set -g $group --vm-name $winvmname --name customScript --publisher Microsoft.Azure.Extensions --settings ./windows_custom_extension.json
-
 ## Script Output
 Write-Host -ForegroundColor Green "#################"
 Write-Host -ForegroundColor Green "# Script Output #"
