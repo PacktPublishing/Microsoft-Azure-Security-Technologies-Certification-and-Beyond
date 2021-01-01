@@ -29,12 +29,12 @@ $sastoken = New-AzStorageContainerSASToken -Name $containername -Permission rwdl
 Invoke-WebRequest -Uri https://raw.githubusercontent.com/PacktPublishing/Implementing-Microsoft-Azure-Security-Technologies/main/chapter-2/custom-script-extensions/linux_custom_extension.json -OutFile linux_custom_extension.json
 
 ## Deploy Windows VM with Azure PowerShell installed (Output public IP)
-$winvmname = "linuxvm$random"
-$windowsuser = "linuxadmin"
+$winvmname = "winvm$random"
+$windowsuser = "windowsadmin"
 az vm create --resource-group $group --name $winvmname --image win2016datacenter --admin-username $windowsuser --admin-password $password 
 az vm open-port --port 3389 --resource-group $group --name $winvmname --priority 200
 $winvmpubip=$(az vm show -d -g $group -n $winvmname --query publicIps -o tsv)
-az vm extension set -g $group --vm-name $winvmname --name customScript --publisher Microsoft.Azure.Extensions --settings ./linux_custom_extension.json
+az vm extension set -g $group --vm-name $winvmname --name customScript --publisher Microsoft.Azure.Extensions --settings ./windows_custom_extension.json
 
 ## Script Output
 Write-Host -ForegroundColor Green "Azure Admin User:" $user
