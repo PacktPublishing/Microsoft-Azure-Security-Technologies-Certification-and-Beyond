@@ -1,3 +1,6 @@
+$starttime = Get-Date
+Write-Host -ForegroundColor Green "Deployment Started $starttime"
+
 ## Create victimadminuser
 $upnsuffix=$(az ad signed-in-user show --query userPrincipalName --output tsv | sed 's/.*@//')
 $password = Read-Host "Please enter a password"
@@ -53,6 +56,7 @@ $winvmpubip=$(az vm show -d -g $group -n $winvmname --query publicIps -o tsv)
 Set-AzVMCustomScriptExtension -ResourceGroupName $group -VMName $winvmname -Location $location -FileUri "https://raw.githubusercontent.com/PacktPublishing/Implementing-Microsoft-Azure-Security-Technologies/main/chapter-3/custom-script-extensions/azure_powershell_install.ps1" -Run 'azure_powershell_install.ps1' -Name AzurePSExtension
 
 ## Script Output
+Start-Transcript -Path admin-token-theft-output.txt
 Write-Host -ForegroundColor Green "#################"
 Write-Host -ForegroundColor Green "# Script Output #"
 Write-Host -ForegroundColor Green "#################"
@@ -64,3 +68,6 @@ Write-Host -ForegroundColor Green "Windows VM Username:" $windowsuser
 Write-Host -ForegroundColor Green "Windows VM User Password:" $password
 Write-Host -ForegroundColor Green " "
 Write-Host -ForegroundColor Green "Exfiltration Storage Location: https://$storagename.blob.core.windows.net/$containername/$blobname$sastoken"
+Stop-Transcript
+$endtime = Get-Date
+Write-Host -ForegroundColor Green "Deployment Ended $endtime"
