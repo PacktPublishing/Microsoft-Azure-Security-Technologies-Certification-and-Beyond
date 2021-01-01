@@ -37,7 +37,7 @@ Invoke-WebRequest -Uri https://raw.githubusercontent.com/PacktPublishing/Impleme
 $winvmname = "winvm$random"
 $windowsuser = "windowsadmin"
 Write-Host -ForegroundColor Green "Creating a new Windows VM $winvmname"
-az vm create --resource-group $group --name $winvmname --image win2016datacenter --admin-username $windowsuser --admin-password $password 
+az vm create --resource-group $group --name $winvmname --image win2016datacenter --admin-username $windowsuser --admin-password $password --size Standard_DS2_v3
 az vm open-port --port 3389 --resource-group $group --name $winvmname --priority 200
 $winvmpubip=$(az vm show -d -g $group -n $winvmname --query publicIps -o tsv)
 az vm extension set -g $group --vm-name $winvmname --name customScript --publisher Microsoft.Azure.Extensions --settings ./windows_custom_extension.json
