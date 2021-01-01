@@ -26,7 +26,7 @@ $EndTime = $startTime.AddDays(6)
 $sastoken = New-AzStorageContainerSASToken -Name $containername -Permission rwdl -StartTime $StartTime -ExpiryTime $EndTime -context $ctx
 
 ## Download Windows Custom Script Extension
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/PacktPublishing/Implementing-Microsoft-Azure-Security-Technologies/main/chapter-2/custom-script-extensions/linux_custom_extension.json -OutFile linux_custom_extension.json
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/PacktPublishing/Implementing-Microsoft-Azure-Security-Technologies/main/chapter-3/custom-script-extensions/windows_custom_extension.json -OutFile windows_custom_extension.json
 
 ## Deploy Windows VM with Azure PowerShell installed (Output public IP)
 $winvmname = "winvm$random"
@@ -40,8 +40,8 @@ az vm extension set -g $group --vm-name $winvmname --name customScript --publish
 Write-Host -ForegroundColor Green "Azure Admin User:" $user
 Write-Host -ForegroundColor Green "Azure Admin User Password:" $password
 Write-Host -ForegroundColor Green " "
-Write-Host -ForegroundColor Green "Linux VM Public IP:" $winvmpubip
-Write-Host -ForegroundColor Green "Linux VM Username:" $windowsuser
-Write-Host -ForegroundColor Green "Linux VM User Password:" $password
+Write-Host -ForegroundColor Green "Windows VM Public IP:" $winvmpubip
+Write-Host -ForegroundColor Green "Windows VM Username:" $windowsuser
+Write-Host -ForegroundColor Green "Windows VM User Password:" $password
 Write-Host -ForegroundColor Green " "
 Write-Host -ForegroundColor Green "Exfiltration Storage Location: https://$storagename.blob.core.windows.net/$containername/$blobname$sastoken"
