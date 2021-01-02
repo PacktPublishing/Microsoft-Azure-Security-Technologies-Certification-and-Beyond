@@ -38,8 +38,8 @@ az storage container create --account-name $storagename --name $containername
 $ctx = New-AzStorageContext -StorageAccountName $storagename -UseConnectedAccount
 $StartTime = Get-Date
 $EndTime = $startTime.AddDays(6)
-# $sastoken = New-AzStorageContainerSASToken -Name $containername -Permission rwdlac -StartTime $StartTime -ExpiryTime $EndTime -context $ctx
-$sastoken = New-AzStorageAccountSASToken -Service Blob -ResourceType Service,Container,Object -Permission "racwdlup" -Context $ctx -StartTime $StartTime -ExpiryTime $EndTime
+$sastoken = New-AzStorageContainerSASToken -Name $containername -Permission rwdlac -StartTime $StartTime -ExpiryTime $EndTime -context $ctx
+# $sastoken = New-AzStorageAccountSASToken -Service Blob -ResourceType Service,Container,Object -Permission "racwdlup" -Context $ctx -StartTime $StartTime -ExpiryTime $EndTime
 
 
 ## Download Windows Custom Script Extension
