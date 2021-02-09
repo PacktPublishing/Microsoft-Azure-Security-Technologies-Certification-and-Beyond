@@ -84,6 +84,14 @@
             
         },
         {
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(toLower(parameters('storagename')), '/default/', 'azsec')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', toLower(parameters('storagename')))]"
+            ]
+        },
+        {
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2019-11-01",
             "name": "azsecwinvm-PublicIP",
@@ -322,6 +330,27 @@
           "computerName": "azseclinvm",
           "adminUsername": "[parameters('adminUser')]",
           "adminPassword": "[parameters('adminPassword')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "azseclinvm-install-apache",
+      "apiVersion": "2020-06-01",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines/', 'azseclinvm')]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[uri(parameters('_artifactsLocation'), concat('install_apache.sh', parameters('_artifactsLocationSasToken')))]"
+          ],
+          "commandToExecute": "sh install_apache.sh"
         }
       }
     }
