@@ -6,7 +6,7 @@
 
 
 ## Windows VM
-- WIndows Server 2019 Datacenter 
+- Windows Server 2019 Datacenter 
 - Putty
 - Google Chrome 
 
