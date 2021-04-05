@@ -2,16 +2,9 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "storagename": {
-            "type": "string",
-            "defaultValue":"[concat('azsecvmstrg', uniqueString(resourceGroup().id))]",
-            "metadata": {
-                "description":"Unique Storage Account name"
-            }
-        },
         "vm-dns": {
             "type": "string",
-            "defaultValue": "[concat('azsecwinvm-',uniqueString(resourceGroup().id))]",
+            "defaultValue": "[concat('azseclinvm-',uniqueString(resourceGroup().id))]",
             "metadata": {
                 "description": "VM DNS Label prefix"
             }
@@ -40,7 +33,7 @@
                 "Standard_D8s_v4"
             ],
             "metadata": {
-                "description": "VM Size for azsecwin-vm"
+                "description": "VM Size for azseclin-vm"
             }
         },
         "location": {
@@ -72,7 +65,6 @@
         }
     },
     "variables":{
-        "scriptUrl": "[uri(parameters('_artifactsLocation'),concat('installscript.ps1',parameters('_artifactsLocationSasToken')))]",
         "aksClusterName": "azsec-aks",
         "aksVersion": "1.19.7",
         "aksDNSPrefix": "azsec-aks",
@@ -288,9 +280,9 @@
         }
     ],
     "outputs": {
-        "winvm-dns": {
+        "linvm-dns": {
             "type": "string",
-            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses','azsecwinvm-PublicIP')).dnsSettings.fqdn]"
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses','azseclinvm-PublicIP')).dnsSettings.fqdn]"
         }
     }
 }
