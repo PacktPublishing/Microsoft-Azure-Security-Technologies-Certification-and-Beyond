@@ -8,3 +8,4 @@
 - Ubuntu 18.04
 - Azure CLI Installed
 - Docker Installed
+- Kubernetes CLI Installed
