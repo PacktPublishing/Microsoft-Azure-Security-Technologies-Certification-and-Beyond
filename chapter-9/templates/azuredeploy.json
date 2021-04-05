@@ -69,7 +69,7 @@
         "aksVersion": "1.19.7",
         "aksDNSPrefix": "azsec-aks",
         "aksNetworkPlugin": "kubenet",
-        "containerRegistryName": "[toLower(concat('azsec', uniqueString(subscription().subscriptionId)))]"
+        "containerRegistryName": "[toLower(concat('azseccr', uniqueString(subscription().subscriptionId)))]"
     },
     "resources": [    
         {
