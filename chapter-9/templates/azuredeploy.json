@@ -1,0 +1,296 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storagename": {
+            "type": "string",
+            "defaultValue":"[concat('azsecvmstrg', uniqueString(resourceGroup().id))]",
+            "metadata": {
+                "description":"Unique Storage Account name"
+            }
+        },
+        "vm-dns": {
+            "type": "string",
+            "defaultValue": "[concat('azsecwinvm-',uniqueString(resourceGroup().id))]",
+            "metadata": {
+                "description": "VM DNS Label prefix"
+            }
+        },
+        "adminUser": {
+            "type": "string",
+            "defaultValue": "azureadmin",
+            "metadata": {
+                "description": "Admin Username for VMs"
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password for admin user"
+            }
+        },
+        "vmsize": {
+            "type": "string",
+            "defaultValue": "Standard_B2ms",
+            "allowedValues": [
+                "Standard_B2ms",
+                "Standard_D2s_v3",
+                "Standard_D4s_v3",
+                "Standard_D8s_v3",
+                "Standard_D8s_v4"
+            ],
+            "metadata": {
+                "description": "VM Size for azsecwin-vm"
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location to deploy current resource"
+            }
+        },
+        "resourceTags": {
+            "type": "object",
+            "defaultValue": {
+                "Lab": "Azure Security"
+            }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located including a trailing '/'"
+            },
+            "defaultValue": "[deployment().properties.templateLink.uri]"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "SAS Token for accessing script path"
+            }
+        }
+    },
+    "variables":{
+        "scriptUrl": "[uri(parameters('_artifactsLocation'),concat('installscript.ps1',parameters('_artifactsLocationSasToken')))]",
+        "aksClusterName": "azsec-aks",
+        "aksVersion": "1.19.7",
+        "aksDNSPrefix": "azsec-aks",
+        "aksNetworkPlugin": "kubenet",
+        "containerRegistryName": "[toLower(concat('azsec', uniqueString(subscription().subscriptionId)))]"
+    },
+    "resources": [    
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2019-11-01",
+            "name": "azseclinvm-PublicIP",
+            "location": "[parameters('location')]",
+            "tags": {
+                "displayName": "PublicIPAddress"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "dnsSettings": {
+                    "domainNameLabel": "[parameters('vm-dns')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-04-01",
+            "name": "azseclinvm-nsg",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "nsgRule1",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-04-01",
+            "name": "azsec-VirtualNetwork",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', 'azseclinvm-nsg')]"
+            ],
+            "tags": {
+                "displayName": "azsec-VirtualNetwork"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "public-subnet",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'azseclinvm-nsg')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "private-subnet",
+                        "properties": {
+                            "addressPrefix": "10.0.1.0/24"
+                        }
+                    }
+
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-06-01",
+            "name": "azseclinvm-nic",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', 'azsec-VirtualNetwork')]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', 'azseclinvm-PublicIP')]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                {
+                    "name": "ipconfig1",
+                    "properties": {
+                        "privateIPAllocationMethod": "Dynamic",
+                        "publicIPAddress": {
+                            "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'azseclinvm-PublicIP')]"
+                            },
+                        "subnet": {
+                            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'azsec-VirtualNetwork', 'public-subnet')]"
+                        }
+                    }
+                }
+                ]
+            }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "azseclinvm",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', 'azseclinvm-nic')]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('VmSize')]"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "createOption": "fromImage",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            }
+          },
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18.04-LTS",
+            "version": "latest"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'azseclinvm-nic')]"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "azseclinvm",
+          "adminUsername": "[parameters('adminUser')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat('azseclinvm','/postdeployment')]",
+      "apiVersion": "2020-06-01",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines/', 'azseclinvm')]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[uri(parameters('_artifactsLocation'), concat('post_deployment.sh', parameters('_artifactsLocationSasToken')))]"
+          ],
+          "commandToExecute": "sh post_deployment.sh"
+        }
+      }
+    },
+    {
+            "apiVersion": "2020-03-01",
+            "dependsOn": [],
+            "type": "Microsoft.ContainerService/managedClusters",
+            "location": "[resourceGroup().location]",
+            "name": "[variables('aksClusterName')]",
+            "properties": {
+                "kubernetesVersion": "[variables('aksVersion')]",
+                "dnsPrefix": "[variables('aksDNSPrefix')]",
+                "agentPoolProfiles": [
+                    {
+                        "name": "agentpool",
+                        "count": 1,
+                        "vmSize": "Standard_B2s",
+                        "osType": "Linux",
+                        "storageProfile": "ManagedDisks",
+                        "type": "AvailabilitySet",
+                        "mode": "System"
+                    }
+                ],
+                "nodeResourceGroup": "[variables('aksClusterName')]",
+                "networkProfile": {
+                    "loadBalancerSku": "standard",
+                    "networkPlugin": "[variables('aksNetworkPlugin')]"
+                }
+            },
+            "tags": "[parameters('resourceTags')]",
+            "identity": {
+                "type": "SystemAssigned"
+            }
+        },
+        {
+            "name": "[variables('containerRegistryName')]",
+            "type": "Microsoft.ContainerRegistry/registries",
+            "apiVersion": "2019-05-01",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Basic"
+            },
+            "properties": {
+                "adminUserEnabled": true
+            }
+        }
+    ],
+    "outputs": {
+        "winvm-dns": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses','azsecwinvm-PublicIP')).dnsSettings.fqdn]"
+        }
+    }
+}
