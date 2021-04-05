@@ -178,6 +178,9 @@
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2020-06-01",
       "name": "azseclinvm",
+      "identity": {
+            "type": "SystemAssigned"
+        },
       "location": "[parameters('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', 'azseclinvm-nic')]"
