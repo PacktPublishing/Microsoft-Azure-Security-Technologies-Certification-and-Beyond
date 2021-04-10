@@ -1,4 +1,5 @@
 aksname="azsec-aks"
+rg="azuresec-c9-rg"
 
 # Create the Azure AD application
 serverApplicationId=$(az ad app create --display-name "${aksname}Server" --identifier-uris "https://${aksname}Server" --query appId -o tsv)
@@ -34,10 +35,17 @@ az ad app permission grant --id $clientApplicationId --api $serverApplicationId
 
 tenantId=$(az account show --query tenantId -o tsv)
 
-az aks update-credentials --aad-client-app-id $clientApplicationId --aad-server-app-id $serverApplicationId --aad-server-app-secret $serverApplicationSecret --aad-tenant-id $tenantId
+az aks create \
+    --resource-group $rg \
+    --name $aksname \
+    --node-count 1 \
+    --generate-ssh-keys \
+    --aad-server-app-id $serverApplicationId \
+    --aad-server-app-secret $serverApplicationSecret \
+    --aad-client-app-id $clientApplicationId \
+    --aad-tenant-id $tenantId
 
 echo "tenantId:" $tenantId
 echo "serverApplicationId:" $serverApplicationId
 echo "serverApplicationSecret:" $serverApplicationSecret
 echo "clientApplicationId:" $clientApplicationId
-
