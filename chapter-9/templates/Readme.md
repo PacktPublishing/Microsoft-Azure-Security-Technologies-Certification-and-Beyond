@@ -5,7 +5,7 @@
 
 
 ## Linux VM
-- Ubuntu 18.04
+- Ubuntu 18.04 with system managed identity
 - Azure CLI Installed
 - Docker Installed
 - Kubernetes CLI Installed
