@@ -336,9 +336,21 @@
         }
     ],
     "outputs": {
-        "winvm-dns": {
+        "winvmdns": {
             "type": "string",
             "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses','azsecwinvm-PublicIP')).dnsSettings.fqdn]"
+        },
+        "winvmuser": {
+            "type": "string",
+            "value": "azureadmin"
+        },
+        "sqlserverName": {
+            "type": "string",
+            "value": "[concat(variables('sqlserverName'), '.database.windows.net')]"
+        },
+        "sqladminuser": {
+            "type": "string",
+            "value": "sqladmin"
         },
         "keyVaultName": {
             "type": "string",
