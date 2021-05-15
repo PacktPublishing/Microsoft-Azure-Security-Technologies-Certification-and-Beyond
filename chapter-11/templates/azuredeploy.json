@@ -50,6 +50,12 @@
                 "description": "Location to deploy current resource"
             }
         },
+        "objectId": {
+            "type": "string",
+            "metadata": {
+                "description": "Object ID of a user, service principal or security group in the Azure AD tenant for the key vault access policy."
+            }
+        },
         "_artifactsLocation": {
             "type": "string",
             "metadata": {
@@ -66,7 +72,10 @@
         }
     },
     "variables":{
-        "scriptUrl": "[uri(parameters('_artifactsLocation'),concat('installscript.ps1',parameters('_artifactsLocationSasToken')))]"
+        "scriptUrl": "[uri(parameters('_artifactsLocation'),concat('installscript.ps1',parameters('_artifactsLocationSasToken')))]",
+        "keyVaultName": "[uniqueString('azseckv', resourceGroup().id)]",
+        "tenantId": "[subscription().tenantId]",
+        "sqlserverName": "[uniqueString('sql', resourceGroup().id)]"
     },
     "resources": [    
         {
@@ -262,12 +271,78 @@
                     "commandToExecute": "[concat('powershell -ExecutionPolicy Bypass -file installscript.ps1 -UserName ',parameters('adminUser'))]"
                 }
             }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2019-09-01",
+            "name": "[variables('keyVaultName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "enabledForDeployment": false,
+                "enabledForDiskEncryption": false,
+                "enabledForTemplateDeployment": false,
+                "tenantId": "[variables('tenantId')]",
+                "accessPolicies": [
+                {
+                    "objectId": "[parameters('objectId')]",
+                    "tenantId": "[variables('tenantId')]",
+                    "permissions": {
+                    "keys": [
+                                "all"
+                            ],
+                    "secrets": [
+                                "all"
+                            ]
+                    }
+                }
+                ],
+                "sku": {
+                    "name": "Standard",
+                    "family": "A"
+                    },
+                    "networkAcls": {
+                    "defaultAction": "Allow",
+                    "bypass": "AzureServices"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2020-02-02-preview",
+            "name": "[variables('sqlserverName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "administratorLogin": "sqladmin",
+                "administratorLoginPassword": "[parameters('adminPassword')]"
+            },
+            "resources": [
+                {
+                "type": "databases",
+                "apiVersion": "2020-08-01-preview",
+                "name": "AdventureWorksDB",
+                "location": "[parameters('location')]",
+                "sku": {
+                    "name": "Standard",
+                    "tier": "Standard"
+                },
+                "properties": {
+                    "sampleName": "AdventureWorksLT"
+                },
+                "dependsOn": [
+                    "[resourceId('Microsoft.Sql/servers', concat(variables('sqlserverName')))]"
+                    ]
+                }
+            ]
         }
     ],
     "outputs": {
         "winvm-dns": {
             "type": "string",
             "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses','azsecwinvm-PublicIP')).dnsSettings.fqdn]"
+        },
+        "keyVaultName": {
+            "type": "string",
+            "value": "[variables('keyVaultName')]"
         }
     }
 }
