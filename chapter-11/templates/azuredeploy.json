@@ -73,9 +73,9 @@
     },
     "variables":{
         "scriptUrl": "[uri(parameters('_artifactsLocation'),concat('installscript.ps1',parameters('_artifactsLocationSasToken')))]",
-        "keyVaultName": "[uniqueString('azseckv', resourceGroup().id)]",
+        "keyVaultName": "[concat('azseckv', uniqueString(resourceGroup().id))]",
         "tenantId": "[subscription().tenantId]",
-        "sqlserverName": "[uniqueString('sqlsrv', resourceGroup().id)]"
+        "sqlserverName": "[concat('sqlsrv', uniqueString(resourceGroup().id))]"
     },
     "resources": [    
         {
