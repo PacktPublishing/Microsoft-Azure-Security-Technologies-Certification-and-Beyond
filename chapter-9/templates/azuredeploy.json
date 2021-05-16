@@ -43,12 +43,6 @@
                 "description": "Location to deploy current resource"
             }
         },
-        "resourceTags": {
-            "type": "object",
-            "defaultValue": {
-                "Lab": "Azure Security"
-            }
-        },
         "_artifactsLocation": {
             "type": "string",
             "metadata": {
@@ -65,10 +59,6 @@
         }
     },
     "variables":{
-        "aksClusterName": "azsec-aks",
-        "aksVersion": "1.19.7",
-        "aksDNSPrefix": "azsec-aks",
-        "aksNetworkPlugin": "kubenet",
         "containerRegistryName": "[toLower(concat('azseccr', uniqueString(subscription().subscriptionId)))]"
     },
     "resources": [    
@@ -239,37 +229,6 @@
       }
     },
     {
-            "apiVersion": "2020-03-01",
-            "dependsOn": [],
-            "type": "Microsoft.ContainerService/managedClusters",
-            "location": "[resourceGroup().location]",
-            "name": "[variables('aksClusterName')]",
-            "properties": {
-                "kubernetesVersion": "[variables('aksVersion')]",
-                "dnsPrefix": "[variables('aksDNSPrefix')]",
-                "agentPoolProfiles": [
-                    {
-                        "name": "agentpool",
-                        "count": 1,
-                        "vmSize": "Standard_B2s",
-                        "osType": "Linux",
-                        "storageProfile": "ManagedDisks",
-                        "type": "AvailabilitySet",
-                        "mode": "System"
-                    }
-                ],
-                "nodeResourceGroup": "[variables('aksClusterName')]",
-                "networkProfile": {
-                    "loadBalancerSku": "standard",
-                    "networkPlugin": "[variables('aksNetworkPlugin')]"
-                }
-            },
-            "tags": "[parameters('resourceTags')]",
-            "identity": {
-                "type": "SystemAssigned"
-            }
-        },
-        {
             "name": "[variables('containerRegistryName')]",
             "type": "Microsoft.ContainerRegistry/registries",
             "apiVersion": "2019-05-01",
