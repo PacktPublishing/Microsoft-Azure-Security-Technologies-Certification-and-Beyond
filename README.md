@@ -57,3 +57,7 @@ David has over a decade of experience in cybersecurity (consultancy, design, and
 David has developed multiple vulnerable-by-design automation templates that can be used to practice cloud penetration testing techniques. He regularly speaks about cloud security at major industry events, such as Microsoft Future Decoded and the European Information Security Summit.
 David is married to a lovely girl who makes the best banana cake in the world. They love traveling the world together and intend to do missions in Asia very soon!
 
+### Download a free PDF
+
+ <i>If you have already purchased a print or Kindle version of this book, you can get a DRM-free PDF version at no cost.<br>Simply click on the link to claim your free PDF.</i>
+<p align="center"> <a href="https://packt.link/free-ebook/9781800562653">https://packt.link/free-ebook/9781800562653 </a> </p>
